@@ -1,0 +1,25 @@
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "3000:3000"
+    environment:
+      PORT: 3000
+      JWT_SECRET: dev-secret-change-me
+      JWT_EXPIRES_IN: 1h
+    depends_on:
+      - db
+
+  db:
+    image: postgres:16-alpine
+    environment:
+      POSTGRES_USER: araneda
+      POSTGRES_PASSWORD: araneda
+      POSTGRES_DB: araneda
+    ports:
+      - "5432:5432"
+    volumes:
+      - araneda_db:/var/lib/postgresql/data
+
+volumes:
+  araneda_db:
