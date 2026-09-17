@@ -5,5 +5,6 @@ export interface User {
   email: string;
   nombre: string;
   role: Role;
+  activo: boolean;
   passwordHash: string;
 }

@@ -25,12 +25,24 @@ export class AuthService {
       throw new InvalidCredentialsError();
     }
 
+    return this.issueToken(user.id, user.email, user.nombre, user.role);
+  }
+
+  async refresh(userId: string) {
+    const user = await this.users.findById(userId);
+    if (!user) {
+      throw new InvalidCredentialsError();
+    }
+    return this.issueToken(user.id, user.email, user.nombre, user.role);
+  }
+
+  private issueToken(id: string, email: string, nombre: string, role: string) {
     const options = { expiresIn: env.jwtExpiresIn } as jwt.SignOptions;
-    const token = jwt.sign({ sub: user.id, email: user.email, role: user.role }, env.jwtSecret, options);
+    const token = jwt.sign({ sub: id, email, role }, env.jwtSecret, options);
 
     return {
       token,
-      user: { id: user.id, email: user.email, nombre: user.nombre, role: user.role }
+      user: { id, email, nombre, role }
     };
   }
 }

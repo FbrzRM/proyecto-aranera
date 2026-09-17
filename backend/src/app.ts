@@ -4,6 +4,7 @@ import swaggerUi from "swagger-ui-express";
 import { errorHandler } from "./middlewares/error.middleware";
 import { buildOpenApiDocument } from "./openapi/document";
 import { authRouter } from "./routes/auth.routes";
+import { userRouter } from "./routes/user.routes";
 
 export function createApp() {
   const app = express();
@@ -16,6 +17,7 @@ export function createApp() {
   app.get("/v1/openapi.json", (_req, res) => res.json(openApiDocument));
   app.use("/v1/docs", swaggerUi.serve, swaggerUi.setup(openApiDocument));
   app.use("/v1/auth", authRouter);
+  app.use("/v1/usuarios", userRouter);
 
   app.use(errorHandler);
 

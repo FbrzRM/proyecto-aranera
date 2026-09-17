@@ -18,3 +18,12 @@ export async function login(req: Request, res: Response, next: NextFunction) {
 export function me(req: AuthenticatedRequest, res: Response) {
   return res.status(200).json({ user: req.user });
 }
+
+export async function refresh(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  try {
+    const result = await authService.refresh(req.user!.sub);
+    return res.status(200).json(result);
+  } catch (error) {
+    return next(error);
+  }
+}
