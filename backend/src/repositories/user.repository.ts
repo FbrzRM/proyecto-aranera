@@ -1,28 +1,26 @@
-import bcrypt from "bcryptjs";
+import { Role } from "../domain/roles";
 import { User } from "../domain/user";
+import { UserModel } from "../models/user.model";
 
 export interface UserRepository {
   findByEmail(email: string): Promise<User | null>;
 }
 
-class InMemoryUserRepository implements UserRepository {
-  private readonly users: User[];
-
-  constructor() {
-    this.users = [
-      {
-        id: "1",
-        email: "admin@araneda.cl",
-        nombre: "Administrador Araneda",
-        role: "administrador",
-        passwordHash: bcrypt.hashSync("Admin123", 10)
-      }
-    ];
-  }
-
+class MongoUserRepository implements UserRepository {
   async findByEmail(email: string): Promise<User | null> {
-    return this.users.find((user) => user.email === email) ?? null;
+    const doc = await UserModel.findOne({ email }).lean();
+    if (!doc) {
+      return null;
+    }
+
+    return {
+      id: String(doc._id),
+      email: doc.email,
+      nombre: doc.nombre,
+      role: doc.role as Role,
+      passwordHash: doc.passwordHash
+    };
   }
 }
 
-export const userRepository: UserRepository = new InMemoryUserRepository();
+export const userRepository: UserRepository = new MongoUserRepository();

@@ -7,19 +7,16 @@ services:
       PORT: 3000
       JWT_SECRET: dev-secret-change-me
       JWT_EXPIRES_IN: 1h
+      MONGODB_URI: mongodb://db:27017/araneda
     depends_on:
       - db
 
   db:
-    image: postgres:16-alpine
-    environment:
-      POSTGRES_USER: araneda
-      POSTGRES_PASSWORD: araneda
-      POSTGRES_DB: araneda
+    image: mongo:7
     ports:
-      - "5432:5432"
+      - "27017:27017"
     volumes:
-      - araneda_db:/var/lib/postgresql/data
+      - araneda_db:/data/db
 
 volumes:
   araneda_db:
