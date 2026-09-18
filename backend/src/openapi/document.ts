@@ -8,6 +8,14 @@ import {
   usuarioPublicoSchema,
   usuariosPaginadosSchema
 } from "../schemas/user.schema";
+import {
+  asignarCasoSchema,
+  cambiarEstadoSchema,
+  casoPublicoSchema,
+  casoQuerySchema,
+  casosPaginadosSchema,
+  crearCasoSchema
+} from "../schemas/caso.schema";
 
 registry.registerComponent("securitySchemes", "bearerAuth", {
   type: "http",
@@ -144,6 +152,111 @@ registry.registerPath({
     401: { description: "No autenticado" },
     403: { description: "No autorizado" },
     404: { description: "Usuario no encontrado" }
+  }
+});
+
+const casoIdParams = z.object({ id: z.string() });
+
+registry.registerPath({
+  method: "post",
+  path: "/v1/casos",
+  tags: ["Casos"],
+  summary: "Crea un caso: pedido, reclamo o requerimiento (Cliente o Tercero)",
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: { content: { "application/json": { schema: crearCasoSchema } } }
+  },
+  responses: {
+    201: { description: "Caso creado", content: { "application/json": { schema: casoPublicoSchema } } },
+    400: { description: "Datos invalidos" },
+    401: { description: "No autenticado" },
+    403: { description: "No autorizado" }
+  }
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/v1/casos",
+  tags: ["Casos"],
+  summary: "Lista casos paginados y filtrables (el Cliente solo ve los suyos)",
+  security: [{ bearerAuth: [] }],
+  request: { query: casoQuerySchema },
+  responses: {
+    200: { description: "Listado", content: { "application/json": { schema: casosPaginadosSchema } } },
+    401: { description: "No autenticado" }
+  }
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/v1/casos/{id}",
+  tags: ["Casos"],
+  summary: "Obtiene un caso por id",
+  security: [{ bearerAuth: [] }],
+  request: { params: casoIdParams },
+  responses: {
+    200: { description: "Caso", content: { "application/json": { schema: casoPublicoSchema } } },
+    401: { description: "No autenticado" },
+    403: { description: "No autorizado" },
+    404: { description: "Caso no encontrado" }
+  }
+});
+
+registry.registerPath({
+  method: "patch",
+  path: "/v1/casos/{id}/asignar",
+  tags: ["Casos"],
+  summary: "Asigna un responsable al caso (Empleado o Jefatura)",
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: casoIdParams,
+    body: { content: { "application/json": { schema: asignarCasoSchema } } }
+  },
+  responses: {
+    200: { description: "Caso asignado", content: { "application/json": { schema: casoPublicoSchema } } },
+    400: { description: "Responsable invalido" },
+    401: { description: "No autenticado" },
+    403: { description: "No autorizado" },
+    404: { description: "Caso no encontrado" },
+    409: { description: "Transicion invalida" }
+  }
+});
+
+registry.registerPath({
+  method: "patch",
+  path: "/v1/casos/{id}/estado",
+  tags: ["Casos"],
+  summary: "Avanza el estado del caso respetando el ciclo de vida (Empleado o Jefatura)",
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: casoIdParams,
+    body: { content: { "application/json": { schema: cambiarEstadoSchema } } }
+  },
+  responses: {
+    200: { description: "Estado actualizado", content: { "application/json": { schema: casoPublicoSchema } } },
+    400: { description: "Datos invalidos" },
+    401: { description: "No autenticado" },
+    403: { description: "No autorizado" },
+    404: { description: "Caso no encontrado" },
+    409: { description: "Transicion invalida" }
+  }
+});
+
+registry.registerPath({
+  method: "patch",
+  path: "/v1/casos/{id}/pago",
+  tags: ["Casos"],
+  summary: "Registra el pago del caso como auditoria (Cliente o Empleado)",
+  description:
+    "Solo marca el caso como pagado para trazabilidad. No procesa cobros ni integra ninguna pasarela de pago; es un registro manual de auditoria.",
+  security: [{ bearerAuth: [] }],
+  request: { params: casoIdParams },
+  responses: {
+    200: { description: "Pago registrado", content: { "application/json": { schema: casoPublicoSchema } } },
+    401: { description: "No autenticado" },
+    403: { description: "No autorizado" },
+    404: { description: "Caso no encontrado" },
+    409: { description: "El caso no admite pago" }
   }
 });
 
