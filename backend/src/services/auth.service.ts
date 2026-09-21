@@ -1,6 +1,5 @@
 import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
-import { env } from "../config/env";
+import { firmarToken } from "../auth/token";
 import { UserRepository, userRepository } from "../repositories/user.repository";
 import { LoginInput } from "../schemas/auth.schema";
 
@@ -37,8 +36,7 @@ export class AuthService {
   }
 
   private issueToken(id: string, email: string, nombre: string, role: string) {
-    const options = { expiresIn: env.jwtExpiresIn } as jwt.SignOptions;
-    const token = jwt.sign({ sub: id, email, role }, env.jwtSecret, options);
+    const token = firmarToken({ sub: id, email, role });
 
     return {
       token,
