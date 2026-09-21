@@ -16,6 +16,8 @@ import {
   casosPaginadosSchema,
   crearCasoSchema
 } from "../schemas/caso.schema";
+import { crearEvidenciaSchema, evidenciaPublicaSchema, evidenciasSchema } from "../schemas/evidencia.schema";
+import { seguimientosSchema } from "../schemas/seguimiento.schema";
 
 registry.registerComponent("securitySchemes", "bearerAuth", {
   type: "http",
@@ -257,6 +259,57 @@ registry.registerPath({
     403: { description: "No autorizado" },
     404: { description: "Caso no encontrado" },
     409: { description: "El caso no admite pago" }
+  }
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/v1/casos/{id}/seguimientos",
+  tags: ["Casos"],
+  summary: "Historial inmutable de seguimiento del caso (auditoria)",
+  security: [{ bearerAuth: [] }],
+  request: { params: casoIdParams },
+  responses: {
+    200: { description: "Seguimientos", content: { "application/json": { schema: seguimientosSchema } } },
+    401: { description: "No autenticado" },
+    403: { description: "No autorizado" },
+    404: { description: "Caso no encontrado" }
+  }
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/v1/casos/{id}/evidencias",
+  tags: ["Casos"],
+  summary: "Adjunta una evidencia al caso como referencia (Empleado o Jefatura)",
+  description:
+    "Registra una referencia a la evidencia (nombre y URL). No almacena archivos ni sube binarios; el archivo vive en un almacenamiento externo.",
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: casoIdParams,
+    body: { content: { "application/json": { schema: crearEvidenciaSchema } } }
+  },
+  responses: {
+    201: { description: "Evidencia registrada", content: { "application/json": { schema: evidenciaPublicaSchema } } },
+    400: { description: "Datos invalidos" },
+    401: { description: "No autenticado" },
+    403: { description: "No autorizado" },
+    404: { description: "Caso no encontrado" }
+  }
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/v1/casos/{id}/evidencias",
+  tags: ["Casos"],
+  summary: "Lista las evidencias del caso",
+  security: [{ bearerAuth: [] }],
+  request: { params: casoIdParams },
+  responses: {
+    200: { description: "Evidencias", content: { "application/json": { schema: evidenciasSchema } } },
+    401: { description: "No autenticado" },
+    403: { description: "No autorizado" },
+    404: { description: "Caso no encontrado" }
   }
 });
 

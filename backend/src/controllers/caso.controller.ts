@@ -61,7 +61,7 @@ export async function obtenerCaso(req: AuthenticatedRequest, res: Response, next
 
 export async function asignarCaso(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   try {
-    const caso = await casoService.asignar(req.params.id, req.body.responsableId);
+    const caso = await casoService.asignar(req.params.id, req.body.responsableId, req.user!.sub);
     return res.status(200).json(caso);
   } catch (error) {
     return manejar(error, res, next);
@@ -70,8 +70,35 @@ export async function asignarCaso(req: AuthenticatedRequest, res: Response, next
 
 export async function cambiarEstadoCaso(req: AuthenticatedRequest, res: Response, next: NextFunction) {
   try {
-    const caso = await casoService.cambiarEstado(req.params.id, req.body.estado);
+    const caso = await casoService.cambiarEstado(req.params.id, req.body.estado, req.user!.sub);
     return res.status(200).json(caso);
+  } catch (error) {
+    return manejar(error, res, next);
+  }
+}
+
+export async function listarSeguimientos(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  try {
+    const items = await casoService.listarSeguimientos(req.params.id, actorDe(req));
+    return res.status(200).json({ items });
+  } catch (error) {
+    return manejar(error, res, next);
+  }
+}
+
+export async function agregarEvidencia(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  try {
+    const evidencia = await casoService.agregarEvidencia(req.params.id, req.body, req.user!.sub, actorDe(req));
+    return res.status(201).json(evidencia);
+  } catch (error) {
+    return manejar(error, res, next);
+  }
+}
+
+export async function listarEvidencias(req: AuthenticatedRequest, res: Response, next: NextFunction) {
+  try {
+    const items = await casoService.listarEvidencias(req.params.id, actorDe(req));
+    return res.status(200).json({ items });
   } catch (error) {
     return manejar(error, res, next);
   }

@@ -1,9 +1,15 @@
 import { Caso, EstadoCaso, transicionValida } from "../domain/caso";
+import { Evidencia } from "../domain/evidencia";
 import { Role } from "../domain/roles";
+import { Seguimiento } from "../domain/seguimiento";
 import { calcularPlazo } from "../domain/sla";
+import { casoEventos } from "../events/caso-eventos";
 import { CasoFiltros, CasoRepository, casoRepository } from "../repositories/caso.repository";
+import { EvidenciaRepository, evidenciaRepository } from "../repositories/evidencia.repository";
+import { SeguimientoRepository, seguimientoRepository } from "../repositories/seguimiento.repository";
 import { UserRepository, userRepository } from "../repositories/user.repository";
 import { CasoQuery, CrearCasoInput } from "../schemas/caso.schema";
+import { CrearEvidenciaInput } from "../schemas/evidencia.schema";
 
 export class CasoNoEncontradoError extends Error {
   constructor() {
@@ -46,10 +52,15 @@ export interface Actor {
 }
 
 export class CasoService {
-  constructor(private readonly casos: CasoRepository, private readonly users: UserRepository) {}
+  constructor(
+    private readonly casos: CasoRepository,
+    private readonly users: UserRepository,
+    private readonly seguimientos: SeguimientoRepository,
+    private readonly evidencias: EvidenciaRepository
+  ) {}
 
   async crear(input: CrearCasoInput, clienteId: string): Promise<Caso> {
-    return this.casos.create({
+    const caso = await this.casos.create({
       tipo: input.tipo,
       categoria: input.categoria,
       titulo: input.titulo,
@@ -60,6 +71,16 @@ export class CasoService {
       plazo: calcularPlazo(input.categoria, new Date()),
       pagado: false
     });
+
+    await casoEventos.notificar({
+      casoId: caso.id,
+      accion: "creado",
+      descripcion: `Caso creado (${caso.tipo}/${caso.categoria})`,
+      autorId: clienteId,
+      estado: caso.estado
+    });
+
+    return caso;
   }
 
   async listar(query: CasoQuery, actor: Actor) {
@@ -85,7 +106,7 @@ export class CasoService {
     return caso;
   }
 
-  async asignar(id: string, responsableId: string): Promise<Caso> {
+  async asignar(id: string, responsableId: string, autorId: string): Promise<Caso> {
     const caso = await this.buscar(id);
 
     const responsable = await this.users.findById(responsableId);
@@ -96,15 +117,34 @@ export class CasoService {
       throw new TransicionInvalidaError(caso.estado, "asignado");
     }
 
-    return this.actualizar(id, { responsableId, estado: "asignado" });
+    const actualizado = await this.actualizar(id, { responsableId, estado: "asignado" });
+    await casoEventos.notificar({
+      casoId: id,
+      accion: "asignado",
+      descripcion: `Asignado al responsable ${responsableId}`,
+      autorId,
+      estado: "asignado"
+    });
+
+    return actualizado;
   }
 
-  async cambiarEstado(id: string, nuevo: EstadoCaso): Promise<Caso> {
+  async cambiarEstado(id: string, nuevo: EstadoCaso, autorId: string): Promise<Caso> {
     const caso = await this.buscar(id);
     if (!transicionValida(caso.estado, nuevo)) {
       throw new TransicionInvalidaError(caso.estado, nuevo);
     }
-    return this.actualizar(id, { estado: nuevo });
+
+    const actualizado = await this.actualizar(id, { estado: nuevo });
+    await casoEventos.notificar({
+      casoId: id,
+      accion: "estado",
+      descripcion: `Estado cambiado de ${caso.estado} a ${nuevo}`,
+      autorId,
+      estado: nuevo
+    });
+
+    return actualizado;
   }
 
   async registrarPago(id: string, actor: Actor): Promise<Caso> {
@@ -113,7 +153,54 @@ export class CasoService {
     if (caso.pagado || caso.estado === "cerrado" || caso.estado === "cancelado") {
       throw new PagoInvalidoError();
     }
-    return this.actualizar(id, { pagado: true });
+
+    const actualizado = await this.actualizar(id, { pagado: true });
+    await casoEventos.notificar({
+      casoId: id,
+      accion: "pago",
+      descripcion: "Pago registrado",
+      autorId: actor.sub,
+      estado: null
+    });
+
+    return actualizado;
+  }
+
+  async listarSeguimientos(casoId: string, actor: Actor): Promise<Seguimiento[]> {
+    await this.obtener(casoId, actor);
+    return this.seguimientos.listByCaso(casoId);
+  }
+
+  async listarEvidencias(casoId: string, actor: Actor): Promise<Evidencia[]> {
+    await this.obtener(casoId, actor);
+    return this.evidencias.listByCaso(casoId);
+  }
+
+  async agregarEvidencia(
+    casoId: string,
+    input: CrearEvidenciaInput,
+    autorId: string,
+    actor: Actor
+  ): Promise<Evidencia> {
+    await this.obtener(casoId, actor);
+
+    const evidencia = await this.evidencias.create({
+      casoId,
+      nombre: input.nombre,
+      url: input.url,
+      descripcion: input.descripcion ?? null,
+      autorId
+    });
+
+    await casoEventos.notificar({
+      casoId,
+      accion: "evidencia",
+      descripcion: `Evidencia adjuntada: ${input.nombre}`,
+      autorId,
+      estado: null
+    });
+
+    return evidencia;
   }
 
   private async buscar(id: string): Promise<Caso> {
@@ -139,4 +226,9 @@ export class CasoService {
   }
 }
 
-export const casoService = new CasoService(casoRepository, userRepository);
+export const casoService = new CasoService(
+  casoRepository,
+  userRepository,
+  seguimientoRepository,
+  evidenciaRepository
+);
