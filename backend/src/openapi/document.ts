@@ -18,6 +18,14 @@ import {
 } from "../schemas/caso.schema";
 import { crearEvidenciaSchema, evidenciaPublicaSchema, evidenciasSchema } from "../schemas/evidencia.schema";
 import { seguimientosSchema } from "../schemas/seguimiento.schema";
+import { crearTerceroSchema, terceroCreadoSchema, tercerosSchema } from "../schemas/tercero.schema";
+import {
+  credencialesSchema,
+  crearPedidoSchema,
+  pedidoExternoSchema,
+  pedidosExternosSchema,
+  tokenServicioSchema
+} from "../schemas/integracion.schema";
 
 registry.registerComponent("securitySchemes", "bearerAuth", {
   type: "http",
@@ -310,6 +318,96 @@ registry.registerPath({
     401: { description: "No autenticado" },
     403: { description: "No autorizado" },
     404: { description: "Caso no encontrado" }
+  }
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/v1/terceros",
+  tags: ["Terceros"],
+  summary: "Registra un tercero y devuelve sus credenciales una sola vez (solo Administrador)",
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: { content: { "application/json": { schema: crearTerceroSchema } } }
+  },
+  responses: {
+    201: { description: "Tercero creado", content: { "application/json": { schema: terceroCreadoSchema } } },
+    400: { description: "Datos invalidos" },
+    401: { description: "No autenticado" },
+    403: { description: "No autorizado" }
+  }
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/v1/terceros",
+  tags: ["Terceros"],
+  summary: "Lista los terceros registrados (Administrador o Jefatura)",
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: { description: "Listado", content: { "application/json": { schema: tercerosSchema } } },
+    401: { description: "No autenticado" },
+    403: { description: "No autorizado" }
+  }
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/v1/integracion/token",
+  tags: ["Integracion"],
+  summary: "Intercambia credenciales de tercero por un token de servicio",
+  request: {
+    body: { content: { "application/json": { schema: credencialesSchema } } }
+  },
+  responses: {
+    200: { description: "Token emitido", content: { "application/json": { schema: tokenServicioSchema } } },
+    400: { description: "Datos invalidos" },
+    401: { description: "Credenciales invalidas" }
+  }
+});
+
+registry.registerPath({
+  method: "post",
+  path: "/v1/integracion/pedidos",
+  tags: ["Integracion"],
+  summary: "Crea un pedido desde el canal del tercero (contrato publico)",
+  security: [{ bearerAuth: [] }],
+  request: {
+    body: { content: { "application/json": { schema: crearPedidoSchema } } }
+  },
+  responses: {
+    201: { description: "Pedido creado", content: { "application/json": { schema: pedidoExternoSchema } } },
+    400: { description: "Datos invalidos" },
+    401: { description: "No autenticado" },
+    403: { description: "No autorizado" }
+  }
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/v1/integracion/pedidos",
+  tags: ["Integracion"],
+  summary: "Lista los pedidos propios del tercero",
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: { description: "Listado", content: { "application/json": { schema: pedidosExternosSchema } } },
+    401: { description: "No autenticado" },
+    403: { description: "No autorizado" }
+  }
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/v1/integracion/pedidos/{id}",
+  tags: ["Integracion"],
+  summary: "Obtiene un pedido propio del tercero",
+  security: [{ bearerAuth: [] }],
+  request: { params: z.object({ id: z.string() }) },
+  responses: {
+    200: { description: "Pedido", content: { "application/json": { schema: pedidoExternoSchema } } },
+    401: { description: "No autenticado" },
+    403: { description: "No autorizado" },
+    404: { description: "Pedido no encontrado" }
   }
 });
 

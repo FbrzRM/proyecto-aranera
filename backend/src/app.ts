@@ -5,6 +5,8 @@ import { errorHandler } from "./middlewares/error.middleware";
 import { buildOpenApiDocument } from "./openapi/document";
 import { authRouter } from "./routes/auth.routes";
 import { casoRouter } from "./routes/caso.routes";
+import { integracionRouter } from "./routes/integracion.routes";
+import { terceroRouter } from "./routes/tercero.routes";
 import { userRouter } from "./routes/user.routes";
 
 export function createApp() {
@@ -20,6 +22,8 @@ export function createApp() {
   app.use("/v1/auth", authRouter);
   app.use("/v1/usuarios", userRouter);
   app.use("/v1/casos", casoRouter);
+  app.use("/v1/terceros", terceroRouter);
+  app.use("/v1/integracion", integracionRouter);
 
   app.use(errorHandler);
 
