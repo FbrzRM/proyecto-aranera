@@ -6,6 +6,7 @@ import { buildOpenApiDocument } from "./openapi/document";
 import { authRouter } from "./routes/auth.routes";
 import { casoRouter } from "./routes/caso.routes";
 import { integracionRouter } from "./routes/integracion.routes";
+import { metricaRouter } from "./routes/metrica.routes";
 import { terceroRouter } from "./routes/tercero.routes";
 import { userRouter } from "./routes/user.routes";
 
@@ -24,6 +25,7 @@ export function createApp() {
   app.use("/v1/casos", casoRouter);
   app.use("/v1/terceros", terceroRouter);
   app.use("/v1/integracion", integracionRouter);
+  app.use("/v1/metricas", metricaRouter);
 
   app.use(errorHandler);
 

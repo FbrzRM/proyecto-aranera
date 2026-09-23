@@ -19,6 +19,7 @@ import {
 import { crearEvidenciaSchema, evidenciaPublicaSchema, evidenciasSchema } from "../schemas/evidencia.schema";
 import { seguimientosSchema } from "../schemas/seguimiento.schema";
 import { crearTerceroSchema, terceroCreadoSchema, tercerosSchema } from "../schemas/tercero.schema";
+import { casosVencidosSchema, empleadosMetricasSchema, resumenMetricasSchema } from "../schemas/metrica.schema";
 import {
   credencialesSchema,
   crearPedidoSchema,
@@ -408,6 +409,45 @@ registry.registerPath({
     401: { description: "No autenticado" },
     403: { description: "No autorizado" },
     404: { description: "Pedido no encontrado" }
+  }
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/v1/metricas/resumen",
+  tags: ["Metricas"],
+  summary: "Resumen de casos para el dashboard (Jefatura o Administrador)",
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: { description: "Resumen", content: { "application/json": { schema: resumenMetricasSchema } } },
+    401: { description: "No autenticado" },
+    403: { description: "No autorizado" }
+  }
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/v1/metricas/empleados",
+  tags: ["Metricas"],
+  summary: "Carga y desempeno por responsable (Jefatura o Administrador)",
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: { description: "KPI por empleado", content: { "application/json": { schema: empleadosMetricasSchema } } },
+    401: { description: "No autenticado" },
+    403: { description: "No autorizado" }
+  }
+});
+
+registry.registerPath({
+  method: "get",
+  path: "/v1/metricas/vencidos",
+  tags: ["Metricas"],
+  summary: "Casos vencidos segun su plazo (Jefatura o Administrador)",
+  security: [{ bearerAuth: [] }],
+  responses: {
+    200: { description: "Casos vencidos", content: { "application/json": { schema: casosVencidosSchema } } },
+    401: { description: "No autenticado" },
+    403: { description: "No autorizado" }
   }
 });
 
