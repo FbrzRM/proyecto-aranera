@@ -30,8 +30,9 @@ export function Layout() {
     <div className="min-h-screen bg-slate-100">
       <header className="flex items-center justify-between border-b bg-white px-6 py-3 shadow-sm">
         <div className="flex items-center gap-6">
-          <Link to="/" className="text-lg font-bold text-slate-800">
-            Araneda
+          <Link to="/" className="flex items-center gap-2 text-lg font-bold text-slate-800">
+            <img src="/logo-araneda.svg" alt="Araneda" className="h-8 w-8 rounded" />
+            <span>Araneda</span>
           </Link>
           <nav className="flex gap-4 text-sm">
             {enlacesPorRol[usuario.role].map((enlace) => (
