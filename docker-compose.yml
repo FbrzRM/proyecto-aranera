@@ -11,6 +11,13 @@ services:
     depends_on:
       - db
 
+  frontend:
+    build: ./frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
   db:
     image: mongo:7
     ports:
