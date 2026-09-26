@@ -1,5 +1,8 @@
 import { createBrowserRouter } from "react-router-dom";
 import { LoginPage } from "../features/auth/LoginPage";
+import { CasoDetallePage } from "../features/casos/CasoDetallePage";
+import { CasosPage } from "../features/casos/CasosPage";
+import { CrearCasoPage } from "../features/casos/CrearCasoPage";
 import { InicioPage } from "../pages/InicioPage";
 import { ProximamentePage } from "../pages/ProximamentePage";
 import { Layout } from "./Layout";
@@ -16,7 +19,11 @@ export const router = createBrowserRouter([
           { path: "/", element: <InicioPage /> },
           {
             element: <RutaPorRol roles={["cliente"]} />,
-            children: [{ path: "/casos", element: <ProximamentePage titulo="Mis casos" /> }]
+            children: [
+              { path: "/casos", element: <CasosPage /> },
+              { path: "/casos/nuevo", element: <CrearCasoPage /> },
+              { path: "/casos/:id", element: <CasoDetallePage /> }
+            ]
           },
           {
             element: <RutaPorRol roles={["empleado"]} />,
