@@ -3,6 +3,8 @@ import { LoginPage } from "../features/auth/LoginPage";
 import { CasoDetallePage } from "../features/casos/CasoDetallePage";
 import { CasosPage } from "../features/casos/CasosPage";
 import { CrearCasoPage } from "../features/casos/CrearCasoPage";
+import { BandejaPage } from "../features/operacion/BandejaPage";
+import { OperacionCasoPage } from "../features/operacion/OperacionCasoPage";
 import { InicioPage } from "../pages/InicioPage";
 import { ProximamentePage } from "../pages/ProximamentePage";
 import { Layout } from "./Layout";
@@ -27,7 +29,10 @@ export const router = createBrowserRouter([
           },
           {
             element: <RutaPorRol roles={["empleado"]} />,
-            children: [{ path: "/bandeja", element: <ProximamentePage titulo="Bandeja" /> }]
+            children: [
+              { path: "/bandeja", element: <BandejaPage /> },
+              { path: "/bandeja/:id", element: <OperacionCasoPage /> }
+            ]
           },
           {
             element: <RutaPorRol roles={["jefatura"]} />,
