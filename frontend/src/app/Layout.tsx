@@ -1,16 +1,6 @@
 import { Link, Outlet, useNavigate } from "react-router-dom";
-import { Role, useSession } from "../features/auth/session";
-
-const enlacesPorRol: Record<Role, { to: string; label: string }[]> = {
-  administrador: [
-    { to: "/usuarios", label: "Usuarios" },
-    { to: "/terceros", label: "Terceros" }
-  ],
-  jefatura: [{ to: "/dashboard", label: "Dashboard" }],
-  empleado: [{ to: "/bandeja", label: "Bandeja" }],
-  cliente: [{ to: "/casos", label: "Mis casos" }],
-  tercero: []
-};
+import { useSession } from "../features/auth/session";
+import { enlacesPorRol } from "./menu";
 
 export function Layout() {
   const usuario = useSession((s) => s.usuario);
