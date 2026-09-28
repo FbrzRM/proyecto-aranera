@@ -1,5 +1,5 @@
 import bcrypt from "bcryptjs";
-import mongoose from "mongoose";
+import mongoose, { InsertManyOptions } from "mongoose";
 import { connectDatabase } from "../config/db";
 import { CasoModel } from "../models/caso.model";
 import { EvidenciaModel } from "../models/evidencia.model";
@@ -75,7 +75,7 @@ async function crearCaso(def: CasoDemo) {
     });
   }
 
-  await SeguimientoModel.insertMany(seguimientos, { timestamps: false });
+  await SeguimientoModel.insertMany(seguimientos, { timestamps: false } as unknown as InsertManyOptions);
 
   if (def.evidencia) {
     await EvidenciaModel.create({
