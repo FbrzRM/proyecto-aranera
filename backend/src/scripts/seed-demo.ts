@@ -1,9 +1,11 @@
 import bcrypt from "bcryptjs";
+import { randomBytes } from "crypto";
 import mongoose, { InsertManyOptions } from "mongoose";
 import { connectDatabase } from "../config/db";
 import { CasoModel } from "../models/caso.model";
 import { EvidenciaModel } from "../models/evidencia.model";
 import { SeguimientoModel } from "../models/seguimiento.model";
+import { TerceroModel } from "../models/tercero.model";
 import { UserModel } from "../models/user.model";
 
 function dias(n: number): Date {
@@ -20,6 +22,18 @@ async function upsertUsuario(email: string, nombre: string, role: string): Promi
     { new: true, upsert: true }
   );
   return String(doc?._id);
+}
+
+async function crearTercero(nombre: string): Promise<{ nombre: string; clientId: string; clientSecret: string }> {
+  const clientId = `arn_${randomBytes(9).toString("hex")}`;
+  const clientSecret = randomBytes(24).toString("hex");
+  await TerceroModel.create({
+    nombre,
+    clientId,
+    secretHash: bcrypt.hashSync(clientSecret, 10),
+    activo: true
+  });
+  return { nombre, clientId, clientSecret };
 }
 
 const pathPedido = ["creado", "recibido", "asignado", "despachando", "empacando", "enviado", "cerrado"];
@@ -98,7 +112,9 @@ async function main() {
   const jose = await upsertUsuario("jose@araneda.cl", "Jose Vega", "empleado");
   await upsertUsuario("jefe@araneda.cl", "Carla Nunez", "jefatura");
 
-  await Promise.all([CasoModel.deleteMany({}), SeguimientoModel.deleteMany({}), EvidenciaModel.deleteMany({})]);
+  await Promise.all([CasoModel.deleteMany({}), SeguimientoModel.deleteMany({}), EvidenciaModel.deleteMany({}), TerceroModel.deleteMany({})]);
+
+  const terceros = [await crearTercero("LabExterno SpA"), await crearTercero("BioDistribuidora Andina")];
 
   const casos: CasoDemo[] = [
     { tipo: "pedido", categoria: "equipo", titulo: "Compra de centrifuga", descripcion: "Centrifuga para laboratorio clinico", clienteId: laura, responsableId: null, estado: "creado", plazo: dias(53) },
@@ -122,8 +138,11 @@ async function main() {
   const totalCasos = await CasoModel.countDocuments();
   const totalSeg = await SeguimientoModel.countDocuments();
   const totalEv = await EvidenciaModel.countDocuments();
-  console.log(`Datos de muestra creados: ${totalCasos} casos, ${totalSeg} seguimientos, ${totalEv} evidencias`);
+  console.log(`Datos de muestra creados: ${totalCasos} casos, ${totalSeg} seguimientos, ${totalEv} evidencias, ${terceros.length} terceros`);
   console.log("Empleados: empleado1@araneda.cl (Marta), jose@araneda.cl (Jose) | Jefatura: jefe@araneda.cl | Clientes: cliente1, laura, pedro @araneda.cl | Clave: Clave123");
+  for (const tercero of terceros) {
+    console.log(`Tercero: ${tercero.nombre} | clientId: ${tercero.clientId} | clientSecret: ${tercero.clientSecret}`);
+  }
 
   await mongoose.disconnect();
 }

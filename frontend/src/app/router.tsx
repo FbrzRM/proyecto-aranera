@@ -1,4 +1,6 @@
 import { createBrowserRouter } from "react-router-dom";
+import { TercerosPage } from "../features/admin/TercerosPage";
+import { UsuariosPage } from "../features/admin/UsuariosPage";
 import { LoginPage } from "../features/auth/LoginPage";
 import { CasoDetallePage } from "../features/casos/CasoDetallePage";
 import { CasosPage } from "../features/casos/CasosPage";
@@ -7,7 +9,6 @@ import { DashboardPage } from "../features/metricas/DashboardPage";
 import { BandejaPage } from "../features/operacion/BandejaPage";
 import { OperacionCasoPage } from "../features/operacion/OperacionCasoPage";
 import { InicioPage } from "../pages/InicioPage";
-import { ProximamentePage } from "../pages/ProximamentePage";
 import { Layout } from "./Layout";
 import { RutaPorRol, RutaProtegida } from "./guards";
 
@@ -42,8 +43,8 @@ export const router = createBrowserRouter([
           {
             element: <RutaPorRol roles={["administrador"]} />,
             children: [
-              { path: "/usuarios", element: <ProximamentePage titulo="Usuarios" /> },
-              { path: "/terceros", element: <ProximamentePage titulo="Terceros" /> }
+              { path: "/usuarios", element: <UsuariosPage /> },
+              { path: "/terceros", element: <TercerosPage /> }
             ]
           }
         ]
