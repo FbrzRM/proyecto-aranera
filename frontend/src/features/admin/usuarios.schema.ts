@@ -8,3 +8,12 @@ export const crearUsuarioSchema = z.object({
 });
 
 export type CrearUsuarioInput = z.infer<typeof crearUsuarioSchema>;
+
+export const editarUsuarioSchema = z.object({
+  nombre: z.string().min(1, "Requerido"),
+  role: z.enum(["administrador", "jefatura", "empleado", "cliente"]),
+  activo: z.boolean(),
+  password: z.union([z.string().min(6, "Mínimo 6 caracteres"), z.literal("")])
+});
+
+export type EditarUsuarioInput = z.infer<typeof editarUsuarioSchema>;

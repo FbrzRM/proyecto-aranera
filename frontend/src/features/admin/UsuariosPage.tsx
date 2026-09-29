@@ -1,6 +1,7 @@
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
+import { Fragment, useState } from "react";
 import { useForm } from "react-hook-form";
+import { EditarUsuarioForm } from "./EditarUsuarioForm";
 import { useCrearUsuario, useUsuarios } from "./usuarios.hooks";
 import { CrearUsuarioInput, crearUsuarioSchema } from "./usuarios.schema";
 
@@ -8,6 +9,7 @@ const roles: CrearUsuarioInput["role"][] = ["administrador", "jefatura", "emplea
 
 export function UsuariosPage() {
   const [mostrarForm, setMostrarForm] = useState(false);
+  const [editId, setEditId] = useState<string | null>(null);
   const { data, isLoading, isError } = useUsuarios();
   const crear = useCrearUsuario();
   const {
@@ -126,22 +128,40 @@ export function UsuariosPage() {
                 <th className="px-4 py-3 font-medium">Correo</th>
                 <th className="px-4 py-3 font-medium">Rol</th>
                 <th className="px-4 py-3 font-medium">Estado</th>
+                <th className="px-4 py-3 font-medium text-right">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {data.items.map((usuario) => (
-                <tr key={usuario.id} className="border-t border-slate-100">
-                  <td className="px-4 py-3 font-medium text-slate-800">{usuario.nombre}</td>
-                  <td className="px-4 py-3 text-slate-600">{usuario.email}</td>
-                  <td className="px-4 py-3 capitalize text-slate-600">{usuario.role}</td>
-                  <td className="px-4 py-3">
-                    {usuario.activo ? (
-                      <span className="text-emerald-600">Activo</span>
-                    ) : (
-                      <span className="text-slate-400">Inactivo</span>
-                    )}
-                  </td>
-                </tr>
+                <Fragment key={usuario.id}>
+                  <tr className="border-t border-slate-100">
+                    <td className="px-4 py-3 font-medium text-slate-800">{usuario.nombre}</td>
+                    <td className="px-4 py-3 text-slate-600">{usuario.email}</td>
+                    <td className="px-4 py-3 capitalize text-slate-600">{usuario.role}</td>
+                    <td className="px-4 py-3">
+                      {usuario.activo ? (
+                        <span className="text-emerald-600">Activo</span>
+                      ) : (
+                        <span className="text-slate-400">Inactivo</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        onClick={() => setEditId((id) => (id === usuario.id ? null : usuario.id))}
+                        className="text-sm font-medium text-slate-700 underline hover:text-slate-900"
+                      >
+                        {editId === usuario.id ? "Cerrar" : "Editar"}
+                      </button>
+                    </td>
+                  </tr>
+                  {editId === usuario.id && (
+                    <tr className="border-t border-slate-100">
+                      <td colSpan={5} className="p-0">
+                        <EditarUsuarioForm usuario={usuario} onDone={() => setEditId(null)} />
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               ))}
             </tbody>
           </table>
