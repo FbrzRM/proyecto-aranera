@@ -148,9 +148,20 @@ export function UsuariosPage() {
                     <td className="px-4 py-3 text-right">
                       <button
                         onClick={() => setEditId((id) => (id === usuario.id ? null : usuario.id))}
-                        className="text-sm font-medium text-slate-700 underline hover:text-slate-900"
+                        aria-label={editId === usuario.id ? "Cerrar edición" : "Editar usuario"}
+                        title={editId === usuario.id ? "Cerrar" : "Editar"}
+                        className="inline-flex rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
                       >
-                        {editId === usuario.id ? "Cerrar" : "Editar"}
+                        {editId === usuario.id ? (
+                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M18 6 6 18M6 6l12 12" />
+                          </svg>
+                        ) : (
+                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 20h9" />
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                          </svg>
+                        )}
                       </button>
                     </td>
                   </tr>
