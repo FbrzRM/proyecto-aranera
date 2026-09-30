@@ -1,66 +1,23 @@
 import { http } from "../../lib/http";
+import { Schemas } from "../../lib/contract";
 
-export type TipoCaso = "pedido" | "reclamo" | "requerimiento";
-export type Categoria = "equipo" | "consumible" | "reactivo";
-export type EstadoCaso =
-  | "creado"
-  | "recibido"
-  | "asignado"
-  | "despachando"
-  | "empacando"
-  | "pagado"
-  | "enviado"
-  | "cerrado"
-  | "cancelado";
+export type TipoCaso = Schemas["CrearCaso"]["tipo"];
+export type Categoria = Schemas["CrearCaso"]["categoria"];
+export type EstadoCaso = Schemas["CambiarEstadoCaso"]["estado"];
 
-export interface Caso {
-  id: string;
+export type Caso = Omit<Schemas["Caso"], "tipo" | "categoria" | "estado"> & {
   tipo: TipoCaso;
   categoria: Categoria;
-  titulo: string;
-  descripcion: string;
-  clienteId: string;
-  responsableId: string | null;
   estado: EstadoCaso;
-  plazo: string;
-  pagado: boolean;
-  creadoEn: string;
-  actualizadoEn: string;
-}
+};
 
-export interface Seguimiento {
-  id: string;
-  casoId: string;
-  accion: string;
-  descripcion: string;
-  autorId: string;
-  estado: EstadoCaso | null;
-  creadoEn: string;
-}
+export type Seguimiento = Omit<Schemas["Seguimiento"], "estado"> & { estado: EstadoCaso | null };
 
-export interface Evidencia {
-  id: string;
-  casoId: string;
-  nombre: string;
-  url: string;
-  descripcion: string | null;
-  autorId: string;
-  creadoEn: string;
-}
+export type Evidencia = Schemas["Evidencia"];
 
-export interface CasosPagina {
-  items: Caso[];
-  total: number;
-  page: number;
-  limit: number;
-}
+export type CasosPagina = Omit<Schemas["CasosPaginados"], "items"> & { items: Caso[] };
 
-export interface CrearCasoBody {
-  tipo: TipoCaso;
-  categoria: Categoria;
-  titulo: string;
-  descripcion: string;
-}
+export type CrearCasoBody = Schemas["CrearCaso"];
 
 export interface CasoFiltros {
   estado?: EstadoCaso;
@@ -115,11 +72,7 @@ export async function cambiarEstado(id: string, estado: EstadoCaso): Promise<Cas
   return data;
 }
 
-export interface CrearEvidenciaBody {
-  nombre: string;
-  url: string;
-  descripcion?: string;
-}
+export type CrearEvidenciaBody = Schemas["CrearEvidencia"];
 
 export async function agregarEvidencia(id: string, body: CrearEvidenciaBody): Promise<Evidencia> {
   const { data } = await http.post<Evidencia>(`/casos/${id}/evidencias`, body);

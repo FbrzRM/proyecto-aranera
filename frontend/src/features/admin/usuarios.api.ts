@@ -1,34 +1,10 @@
 import { http } from "../../lib/http";
-import { Role } from "../auth/session";
+import { Schemas } from "../../lib/contract";
 
-export interface Usuario {
-  id: string;
-  email: string;
-  nombre: string;
-  role: Role;
-  activo: boolean;
-}
-
-export interface UsuariosPagina {
-  items: Usuario[];
-  total: number;
-  page: number;
-  limit: number;
-}
-
-export interface CrearUsuarioBody {
-  email: string;
-  nombre: string;
-  password: string;
-  role: Role;
-}
-
-export interface ActualizarUsuarioBody {
-  nombre?: string;
-  password?: string;
-  role?: Role;
-  activo?: boolean;
-}
+export type Usuario = Schemas["Usuario"];
+export type UsuariosPagina = Schemas["UsuariosPaginados"];
+export type CrearUsuarioBody = Schemas["CrearUsuario"];
+export type ActualizarUsuarioBody = Schemas["ActualizarUsuario"];
 
 export async function listarUsuarios(): Promise<UsuariosPagina> {
   const { data } = await http.get<UsuariosPagina>("/usuarios?limit=100");

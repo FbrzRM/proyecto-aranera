@@ -1,25 +1,9 @@
 import { http } from "../../lib/http";
+import { Schemas } from "../../lib/contract";
 import { Caso } from "../casos/api";
 
-export interface ResumenMetricas {
-  total: number;
-  conResponsable: number;
-  sinResponsable: number;
-  vencidos: number;
-  pagados: number;
-  porcentajeConResponsable: number;
-  porcentajeVencidos: number;
-  porEstado: Record<string, number>;
-  porTipo: Record<string, number>;
-}
-
-export interface CargaEmpleado {
-  responsableId: string;
-  nombre: string;
-  total: number;
-  abiertos: number;
-  vencidos: number;
-}
+export type ResumenMetricas = Schemas["ResumenMetricas"];
+export type CargaEmpleado = Schemas["CargaEmpleado"];
 
 export async function obtenerResumen(): Promise<ResumenMetricas> {
   const { data } = await http.get<ResumenMetricas>("/metricas/resumen");
