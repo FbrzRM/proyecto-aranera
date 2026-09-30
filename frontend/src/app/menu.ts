@@ -7,6 +7,7 @@ export interface EnlaceMenu {
 
 export const enlacesPorRol: Record<Role, EnlaceMenu[]> = {
   administrador: [
+    { to: "/dashboard", label: "Dashboard" },
     { to: "/usuarios", label: "Usuarios" },
     { to: "/terceros", label: "Terceros" }
   ],
