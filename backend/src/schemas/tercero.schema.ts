@@ -6,6 +6,13 @@ export const crearTerceroSchema = z
   })
   .openapi("CrearTercero");
 
+export const actualizarTerceroSchema = z
+  .object({
+    nombre: z.string().min(1).optional(),
+    activo: z.boolean().optional()
+  })
+  .openapi("ActualizarTercero");
+
 export const terceroCreadoSchema = z
   .object({
     id: z.string(),
@@ -32,3 +39,4 @@ export const tercerosSchema = z
   .openapi("Terceros");
 
 export type CrearTerceroInput = z.infer<typeof crearTerceroSchema>;
+export type ActualizarTerceroInput = z.infer<typeof actualizarTerceroSchema>;

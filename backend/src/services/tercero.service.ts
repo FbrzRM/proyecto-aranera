@@ -1,8 +1,15 @@
 import bcrypt from "bcryptjs";
 import { randomBytes } from "crypto";
 import { Tercero } from "../domain/tercero";
-import { TerceroRepository, terceroRepository } from "../repositories/tercero.repository";
-import { CrearTerceroInput } from "../schemas/tercero.schema";
+import { TerceroRepository, TerceroUpdate, terceroRepository } from "../repositories/tercero.repository";
+import { ActualizarTerceroInput, CrearTerceroInput } from "../schemas/tercero.schema";
+
+export class TerceroNoEncontradoError extends Error {
+  constructor() {
+    super("Tercero no encontrado");
+    this.name = "TerceroNoEncontradoError";
+  }
+}
 
 function toPublic(tercero: Tercero) {
   return { id: tercero.id, nombre: tercero.nombre, clientId: tercero.clientId, activo: tercero.activo };
@@ -29,6 +36,22 @@ export class TerceroService {
   async listar() {
     const items = (await this.terceros.list()).map(toPublic);
     return { items };
+  }
+
+  async actualizar(id: string, input: ActualizarTerceroInput) {
+    const data: TerceroUpdate = {};
+    if (input.nombre !== undefined) {
+      data.nombre = input.nombre;
+    }
+    if (input.activo !== undefined) {
+      data.activo = input.activo;
+    }
+
+    const updated = await this.terceros.update(id, data);
+    if (!updated) {
+      throw new TerceroNoEncontradoError();
+    }
+    return toPublic(updated);
   }
 
   async validarCredenciales(clientId: string, clientSecret: string): Promise<Tercero | null> {

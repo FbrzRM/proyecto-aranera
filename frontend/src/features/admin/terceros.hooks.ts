@@ -12,3 +12,11 @@ export function useCrearTercero() {
     onSuccess: () => qc.invalidateQueries({ queryKey: ["terceros"] })
   });
 }
+
+export function useActualizarTercero() {
+  const qc = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, body }: { id: string; body: api.ActualizarTerceroBody }) => api.actualizarTercero(id, body),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ["terceros"] })
+  });
+}

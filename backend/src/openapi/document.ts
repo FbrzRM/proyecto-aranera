@@ -18,7 +18,13 @@ import {
 } from "../schemas/caso.schema";
 import { crearEvidenciaSchema, evidenciaPublicaSchema, evidenciasSchema } from "../schemas/evidencia.schema";
 import { seguimientosSchema } from "../schemas/seguimiento.schema";
-import { crearTerceroSchema, terceroCreadoSchema, tercerosSchema } from "../schemas/tercero.schema";
+import {
+  actualizarTerceroSchema,
+  crearTerceroSchema,
+  terceroCreadoSchema,
+  terceroPublicoSchema,
+  tercerosSchema
+} from "../schemas/tercero.schema";
 import { casosVencidosSchema, empleadosMetricasSchema, resumenMetricasSchema } from "../schemas/metrica.schema";
 import {
   credencialesSchema,
@@ -349,6 +355,25 @@ registry.registerPath({
     200: { description: "Listado", content: { "application/json": { schema: tercerosSchema } } },
     401: { description: "No autenticado" },
     403: { description: "No autorizado" }
+  }
+});
+
+registry.registerPath({
+  method: "patch",
+  path: "/v1/terceros/{id}",
+  tags: ["Terceros"],
+  summary: "Actualiza un tercero (solo Administrador)",
+  security: [{ bearerAuth: [] }],
+  request: {
+    params: idParams,
+    body: { content: { "application/json": { schema: actualizarTerceroSchema } } }
+  },
+  responses: {
+    200: { description: "Tercero actualizado", content: { "application/json": { schema: terceroPublicoSchema } } },
+    400: { description: "Datos invalidos" },
+    401: { description: "No autenticado" },
+    403: { description: "No autorizado" },
+    404: { description: "Tercero no encontrado" }
   }
 });
 

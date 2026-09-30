@@ -1,10 +1,12 @@
-import { useState } from "react";
+import { Fragment, useState } from "react";
+import { EditarTerceroForm } from "./EditarTerceroForm";
 import { TerceroCreado } from "./terceros.api";
 import { useCrearTercero, useTerceros } from "./terceros.hooks";
 
 export function TercerosPage() {
   const [nombre, setNombre] = useState("");
   const [credencial, setCredencial] = useState<TerceroCreado | null>(null);
+  const [editId, setEditId] = useState<string | null>(null);
   const { data, isLoading, isError } = useTerceros();
   const crear = useCrearTercero();
 
@@ -89,23 +91,52 @@ export function TercerosPage() {
                 <th className="px-4 py-3 font-medium">Nombre</th>
                 <th className="px-4 py-3 font-medium">clientId</th>
                 <th className="px-4 py-3 font-medium">Estado</th>
+                <th className="px-4 py-3 font-medium text-right">Acciones</th>
               </tr>
             </thead>
             <tbody>
               {data.items.map((tercero) => (
-                <tr key={tercero.id} className="border-t border-slate-100">
-                  <td className="px-4 py-3 font-medium text-slate-800">{tercero.nombre}</td>
-                  <td className="px-4 py-3 text-slate-600">
-                    <code>{tercero.clientId}</code>
-                  </td>
-                  <td className="px-4 py-3">
-                    {tercero.activo ? (
-                      <span className="text-emerald-600">Activo</span>
-                    ) : (
-                      <span className="text-slate-400">Inactivo</span>
-                    )}
-                  </td>
-                </tr>
+                <Fragment key={tercero.id}>
+                  <tr className="border-t border-slate-100">
+                    <td className="px-4 py-3 font-medium text-slate-800">{tercero.nombre}</td>
+                    <td className="px-4 py-3 text-slate-600">
+                      <code>{tercero.clientId}</code>
+                    </td>
+                    <td className="px-4 py-3">
+                      {tercero.activo ? (
+                        <span className="text-emerald-600">Activo</span>
+                      ) : (
+                        <span className="text-slate-400">Inactivo</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <button
+                        onClick={() => setEditId((id) => (id === tercero.id ? null : tercero.id))}
+                        aria-label={editId === tercero.id ? "Cerrar edición" : "Editar tercero"}
+                        title={editId === tercero.id ? "Cerrar" : "Editar"}
+                        className="inline-flex rounded-lg p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-800"
+                      >
+                        {editId === tercero.id ? (
+                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M18 6 6 18M6 6l12 12" />
+                          </svg>
+                        ) : (
+                          <svg className="h-4 w-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 20h9" />
+                            <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4Z" />
+                          </svg>
+                        )}
+                      </button>
+                    </td>
+                  </tr>
+                  {editId === tercero.id && (
+                    <tr className="border-t border-slate-100">
+                      <td colSpan={4} className="p-0">
+                        <EditarTerceroForm tercero={tercero} onDone={() => setEditId(null)} />
+                      </td>
+                    </tr>
+                  )}
+                </Fragment>
               ))}
             </tbody>
           </table>

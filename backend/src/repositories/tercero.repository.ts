@@ -1,3 +1,4 @@
+import { isValidObjectId } from "mongoose";
 import { Tercero } from "../domain/tercero";
 import { TerceroModel } from "../models/tercero.model";
 
@@ -8,10 +9,16 @@ export interface NewTercero {
   activo: boolean;
 }
 
+export interface TerceroUpdate {
+  nombre?: string;
+  activo?: boolean;
+}
+
 export interface TerceroRepository {
   create(data: NewTercero): Promise<Tercero>;
   findByClientId(clientId: string): Promise<Tercero | null>;
   list(): Promise<Tercero[]>;
+  update(id: string, data: TerceroUpdate): Promise<Tercero | null>;
 }
 
 interface TerceroDocument {
@@ -46,6 +53,14 @@ class MongoTerceroRepository implements TerceroRepository {
   async list(): Promise<Tercero[]> {
     const docs = await TerceroModel.find().sort({ createdAt: -1 }).lean<TerceroDocument[]>();
     return docs.map(toTercero);
+  }
+
+  async update(id: string, data: TerceroUpdate): Promise<Tercero | null> {
+    if (!isValidObjectId(id)) {
+      return null;
+    }
+    const doc = await TerceroModel.findByIdAndUpdate(id, data, { new: true }).lean<TerceroDocument>();
+    return doc ? toTercero(doc) : null;
   }
 }
 
