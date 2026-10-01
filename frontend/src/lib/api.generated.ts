@@ -1457,12 +1457,8 @@ export interface components {
             };
         };
         LoginInput: {
-            /**
-             * Format: email
-             * @example admin@araneda.cl
-             */
+            /** Format: email */
             email: string;
-            /** @example Admin123 */
             password: string;
         };
         Usuario: {
@@ -1473,20 +1469,12 @@ export interface components {
             activo: boolean;
         };
         CrearUsuario: {
-            /**
-             * Format: email
-             * @example empleado@araneda.cl
-             */
-            email: string;
-            /** @example Juan Perez */
             nombre: string;
-            /** @example Clave123 */
+            /** Format: email */
+            email: string;
             password: string;
-            /**
-             * @example empleado
-             * @enum {string}
-             */
-            role: "administrador" | "jefatura" | "empleado" | "cliente" | "tercero";
+            /** @enum {string} */
+            role: "administrador" | "jefatura" | "empleado" | "cliente";
         };
         UsuariosPaginados: {
             items: components["schemas"]["Usuario"][];
@@ -1516,19 +1504,11 @@ export interface components {
             actualizadoEn: string;
         };
         CrearCaso: {
-            /**
-             * @example pedido
-             * @enum {string}
-             */
+            /** @enum {string} */
             tipo: "pedido" | "reclamo" | "requerimiento";
-            /**
-             * @example equipo
-             * @enum {string}
-             */
+            /** @enum {string} */
             categoria: "equipo" | "consumible" | "reactivo";
-            /** @example Compra de centrifuga */
             titulo: string;
-            /** @example Se requiere una centrifuga para el laboratorio */
             descripcion: string;
         };
         CasosPaginados: {

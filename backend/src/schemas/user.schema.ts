@@ -1,14 +1,8 @@
+import { crearUsuarioSchema } from "@araneda/shared";
 import { roles } from "../domain/roles";
 import { z } from "../openapi/registry";
 
-export const createUserSchema = z
-  .object({
-    email: z.string().email().openapi({ example: "empleado@araneda.cl" }),
-    nombre: z.string().min(1).openapi({ example: "Juan Perez" }),
-    password: z.string().min(6).openapi({ example: "Clave123" }),
-    role: z.enum(roles).openapi({ example: "empleado" })
-  })
-  .openapi("CrearUsuario");
+export const createUserSchema = crearUsuarioSchema.openapi("CrearUsuario");
 
 export const updateUserSchema = z
   .object({

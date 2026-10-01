@@ -1,14 +1,8 @@
-import { categorias, estadosCaso, tiposCaso } from "../domain/caso";
+import { crearCasoSchema as crearCasoBase } from "@araneda/shared";
+import { estadosCaso, tiposCaso } from "../domain/caso";
 import { z } from "../openapi/registry";
 
-export const crearCasoSchema = z
-  .object({
-    tipo: z.enum(tiposCaso).openapi({ example: "pedido" }),
-    categoria: z.enum(categorias).openapi({ example: "equipo" }),
-    titulo: z.string().min(1).openapi({ example: "Compra de centrifuga" }),
-    descripcion: z.string().min(1).openapi({ example: "Se requiere una centrifuga para el laboratorio" })
-  })
-  .openapi("CrearCaso");
+export const crearCasoSchema = crearCasoBase.openapi("CrearCaso");
 
 export const asignarCasoSchema = z
   .object({

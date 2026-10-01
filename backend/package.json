@@ -9,6 +9,7 @@
     "seed:demo": "tsx src/scripts/seed-demo.ts"
   },
   "dependencies": {
+    "@araneda/shared": "*",
     "@asteasolutions/zod-to-openapi": "^7.3.0",
     "bcryptjs": "^2.4.3",
     "cors": "^2.8.5",
