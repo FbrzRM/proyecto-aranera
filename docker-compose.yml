@@ -7,9 +7,10 @@ services:
       - "3000:3000"
     environment:
       PORT: 3000
-      JWT_SECRET: dev-secret-change-me
+      JWT_SECRET: araneda-local-dev-7f3b1c9e2a
       JWT_EXPIRES_IN: 1h
       MONGODB_URI: mongodb://db:27017/araneda
+      CORS_ORIGINS: "*"
     depends_on:
       - db
 
