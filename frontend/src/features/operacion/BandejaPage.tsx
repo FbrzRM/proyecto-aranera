@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { CampoBusqueda } from "../../components/CampoBusqueda";
+import { formatoFecha } from "../../lib/format";
 import { useSession } from "../auth/session";
 import { Caso } from "../casos/api";
 import { EstadoBadge } from "../casos/components/EstadoBadge";
 import { useCasosFiltrados } from "../casos/hooks";
-import { formatoFecha } from "../../lib/format";
 
 type Filtro = "todos" | "mios" | "sinAsignar" | "vencidos";
 
@@ -23,9 +24,14 @@ export function BandejaPage() {
   const navigate = useNavigate();
   const miId = useSession((s) => s.usuario?.id);
   const [filtro, setFiltro] = useState<Filtro>("todos");
+  const [busqueda, setBusqueda] = useState("");
   const { data, isLoading, isError } = useCasosFiltrados({});
 
+  const texto = busqueda.trim().toLowerCase();
   const casos = (data?.items ?? []).filter((caso) => {
+    const coincideTexto =
+      !texto || caso.titulo.toLowerCase().includes(texto) || caso.descripcion.toLowerCase().includes(texto);
+    if (!coincideTexto) return false;
     if (filtro === "mios") return caso.responsableId === miId;
     if (filtro === "sinAsignar") return caso.responsableId === null;
     if (filtro === "vencidos") return estaVencido(caso);
@@ -35,6 +41,8 @@ export function BandejaPage() {
   return (
     <div className="space-y-4">
       <h2 className="text-xl font-semibold text-slate-800">Bandeja de casos</h2>
+
+      <CampoBusqueda value={busqueda} onChange={setBusqueda} placeholder="Buscar por título o descripción..." />
 
       <div className="flex flex-wrap gap-2">
         {filtros.map((f) => (

@@ -1,4 +1,5 @@
-import { Fragment, useState } from "react";
+import { Fragment, useMemo, useState } from "react";
+import { CampoBusqueda } from "../../components/CampoBusqueda";
 import { EditarTerceroForm } from "./EditarTerceroForm";
 import { TerceroCreado } from "./terceros.api";
 import { useCrearTercero, useTerceros } from "./terceros.hooks";
@@ -7,8 +8,23 @@ export function TercerosPage() {
   const [nombre, setNombre] = useState("");
   const [credencial, setCredencial] = useState<TerceroCreado | null>(null);
   const [editId, setEditId] = useState<string | null>(null);
+  const [busqueda, setBusqueda] = useState("");
+  const [estadoFiltro, setEstadoFiltro] = useState("todos");
   const { data, isLoading, isError } = useTerceros();
   const crear = useCrearTercero();
+
+  const tercerosFiltrados = useMemo(() => {
+    const texto = busqueda.trim().toLowerCase();
+    return (data?.items ?? []).filter((tercero) => {
+      const coincideTexto =
+        !texto || tercero.nombre.toLowerCase().includes(texto) || tercero.clientId.toLowerCase().includes(texto);
+      const coincideEstado =
+        estadoFiltro === "todos" ||
+        (estadoFiltro === "activos" && tercero.activo) ||
+        (estadoFiltro === "inactivos" && !tercero.activo);
+      return coincideTexto && coincideEstado;
+    });
+  }, [data, busqueda, estadoFiltro]);
 
   const onSubmit = (event: React.FormEvent) => {
     event.preventDefault();
@@ -84,6 +100,27 @@ export function TercerosPage() {
       )}
 
       {data && data.items.length > 0 && (
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <CampoBusqueda value={busqueda} onChange={setBusqueda} placeholder="Buscar por nombre o clientId..." />
+          <select
+            value={estadoFiltro}
+            onChange={(event) => setEstadoFiltro(event.target.value)}
+            className="rounded-lg border border-slate-300 px-3 py-2 text-sm focus:border-slate-500 focus:outline-none"
+          >
+            <option value="todos">Todos los estados</option>
+            <option value="activos">Activos</option>
+            <option value="inactivos">Inactivos</option>
+          </select>
+        </div>
+      )}
+
+      {data && data.items.length > 0 && tercerosFiltrados.length === 0 && (
+        <div className="rounded-xl border border-dashed border-slate-300 bg-white p-10 text-center text-slate-500">
+          Ningún tercero coincide con los filtros.
+        </div>
+      )}
+
+      {tercerosFiltrados.length > 0 && (
         <div className="overflow-hidden rounded-xl border border-slate-200 bg-white">
           <table className="w-full text-sm">
             <thead className="bg-slate-50 text-left text-slate-500">
@@ -95,7 +132,7 @@ export function TercerosPage() {
               </tr>
             </thead>
             <tbody>
-              {data.items.map((tercero) => (
+              {tercerosFiltrados.map((tercero) => (
                 <Fragment key={tercero.id}>
                   <tr className="border-t border-slate-100">
                     <td className="px-4 py-3 font-medium text-slate-800">{tercero.nombre}</td>
